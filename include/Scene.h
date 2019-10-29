@@ -15,6 +15,7 @@ public:
     ~Scene();
 
     virtual void Init() = 0;
+    virtual void Setup(sf::RenderWindow&) = 0;
     virtual void Start();
     virtual void Update(float) = 0;
     virtual void Draw(sf::RenderTarget&, float = 0.1666f);

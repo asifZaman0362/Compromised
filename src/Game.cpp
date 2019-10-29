@@ -6,8 +6,6 @@ Game::Game(Settings settings) : settings(settings)
     ctxSettings.depthBits = settings.depth_bits;
     ctxSettings.sRgbCapable = settings.srgb;
     videoMode = sf::VideoMode(settings.width, settings.height);
-    ScenePtr splashScreen = std::make_unique<SplashScreen>();
-    SceneManager::LoadScene(std::move(splashScreen));
 }
 
 Game::~Game() = default;
@@ -17,11 +15,22 @@ void Game::Start()
     isRunning = true;
     mainClock.restart();
     sf::Clock frameClock;
-    SceneManager::GetCurrentScene().Start();
     while(isRunning)
     {
         window.create(videoMode, settings.title, settings.window_style, ctxSettings);
         window.setVerticalSyncEnabled(settings.vsync);
+        window.setActive(true);
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+        glClearDepth(1.0f);
+        glDisable(GL_LIGHTING);
+        glViewport(0, 0, window.getSize().x, window.getSize().y);
+        double ratio = double(window.getSize().x) / window.getSize().y;
+        glFrustum(-ratio, ratio, -1.0, 1.0, 1.0, 500.0);
+        ScenePtr splashScreen = std::make_unique<SplashScreen>();
+        SceneManager::LoadScene(std::move(splashScreen));
+        SceneManager::GetCurrentScene().Setup(window);
+        SceneManager::GetCurrentScene().Start();
         
         while(window.isOpen())
         {

@@ -8,6 +8,7 @@ public:
     ~SplashScreen();
 
     void Init();
+    void Setup(sf::RenderWindow&);
     void Update(float);
     void CleanUp();
 private:

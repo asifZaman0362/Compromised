@@ -3,6 +3,7 @@
 #include <SFML/Audio.hpp>
 #include <fstream>
 #include <iostream>
+#include "Mesh.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -26,7 +27,7 @@ public:
     static sf::Texture* LoadTexture(std::string);
     static sf::Font* LoadFont(std::string);
     static sf::SoundBuffer* LoadAudio(std::string);
-    static float* LoadModel(std::string);
+    static Mesh* LoadModel(std::string);
     static bool UnloadTexture(std::string);
     static bool UnloadFont(std::string);
     static bool UnloadAudio(std::string);
@@ -37,7 +38,7 @@ private:
     static std::map<std::string, sf::Texture*> textures;
     static std::map<std::string, sf::Font*> fonts;
     static std::map<std::string, sf::SoundBuffer*> sounds;
-    static std::map<std::string, float*> models;
+    static std::map<std::string, Mesh*> models;
 
     static std::vector<std::string> texture_names;
     static std::vector<std::string> font_names;

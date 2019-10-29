@@ -1,16 +1,20 @@
 #include "AssetManager.h"
+#include "StringUtils.h"
 
-std::map<std::string, sf::Texture*> AssetManager::textures;
-std::map<std::string, sf::Font*> AssetManager::fonts;
-std::map<std::string, sf::SoundBuffer*> AssetManager::sounds;
-std::map<std::string, float*> AssetManager::models;
+using namespace std;
 
-std::vector<std::string> AssetManager::texture_names;
-std::vector<std::string> AssetManager::font_names;
-std::vector<std::string> AssetManager::sound_names;
-std::vector<std::string> AssetManager::model_names;
 
-sf::Texture* AssetManager::LoadTexture(std::string name)
+map<string, sf::Texture*> AssetManager::textures;
+map<string, sf::Font*> AssetManager::fonts;
+map<string, sf::SoundBuffer*> AssetManager::sounds;
+map<string, Mesh*> AssetManager::models;
+
+vector<string> AssetManager::texture_names;
+vector<string> AssetManager::font_names;
+vector<string> AssetManager::sound_names;
+vector<string> AssetManager::model_names;
+
+sf::Texture* AssetManager::LoadTexture(string name)
 {
     if (textures[name]!=nullptr) return textures[name];
     else
@@ -19,19 +23,19 @@ sf::Texture* AssetManager::LoadTexture(std::string name)
         temp->setSrgb(true);
         if (temp->loadFromFile(TEXTURE_PATH + name + ".jpg"))
         {
-            textures[name] = std::move(temp);
+            textures[name] = move(temp);
             texture_names.push_back(name);
             return textures[name];
         } else 
         {
             delete temp;
-            std::cerr << "Failed to load texture!" << std::endl;
+            cerr << "Failed to load texture!" << endl;
             return nullptr;
         }
     }
 }
 
-sf::Font* AssetManager::LoadFont(std::string name)
+sf::Font* AssetManager::LoadFont(string name)
 {
     if (fonts[name]!=nullptr) return fonts[name];
     else
@@ -39,19 +43,19 @@ sf::Font* AssetManager::LoadFont(std::string name)
         sf::Font* temp = new sf::Font();
         if (temp->loadFromFile(FONT_PATH + name))
         {
-            fonts[name] = std::move(temp);
+            fonts[name] = move(temp);
             font_names.push_back(name);
             return fonts[name];
         } else
         {
             delete temp;
-            std::cerr << "Failed to load font!" << std::endl;
+            cerr << "Failed to load font!" << endl;
             return nullptr;
         }
     }
 }
 
-sf::SoundBuffer* AssetManager::LoadAudio(std::string name)
+sf::SoundBuffer* AssetManager::LoadAudio(string name)
 {
     if (sounds[name]!=nullptr) return sounds[name];
     else
@@ -59,31 +63,100 @@ sf::SoundBuffer* AssetManager::LoadAudio(std::string name)
         sf::SoundBuffer* temp = new sf::SoundBuffer();
         if (temp->loadFromFile(AUDIO_PATH + name))
         {
-            sounds[name] = std::move(temp);
+            sounds[name] = move(temp);
             sound_names.push_back(name);
             return sounds[name];
         } else
         {
-            std::cerr << "Failed to load audio clip!" << std::endl;
+            cerr << "Failed to load audio clip!" << endl;
             return nullptr;
         }
     }
 }
 
-float* AssetManager::LoadModel(std::string name)
+Mesh* AssetManager::LoadModel(string name)
 {
     if (models[name]!=nullptr) return models[name];
+    
     else
     {
-        // sf::Texture* temp = new sf::Texture();
-        // temp->loadFromFile(TEXTURE_PATH"/name");
-        // models[name] = std::move(temp);
-        // return models[name];
+        vector<sf::Vector3f> temp_verts;
+        vector<sf::Vector3f> temp_normals;
+        vector<sf::Vector2f> temp_uvs;
+        vector<int> vert_indices;
+        vector<int> uv_indices;
+        vector<int> normal_indices;
+
+        ifstream objFile(MODEL_PATH+name);
+        if (!objFile) return nullptr;
+
+        char* line = new char[180];
+        while (!objFile.eof())
+        {
+            objFile.getline(line, 180);
+            vector<string> tokens = StringUtils::SplitString(line, ' ');
+            
+            if (tokens[0] == "v")
+                temp_verts.push_back(sf::Vector3f(stof(tokens[1]), stof(tokens[2]), stof(tokens[3])));
+            else if (tokens[0] == "vt")
+                temp_uvs.push_back(sf::Vector2f(stof(tokens[1]), stof(tokens[2])));
+            else if (tokens[0] == "vn")
+                temp_normals.push_back(sf::Vector3f(stof(tokens[1]), stof(tokens[2]), stof(tokens[3])));
+            else if (tokens[0] == "f")
+            {
+                for (int i = 1; i <= 3; i++)
+                {
+                    vector<string> indices = StringUtils::SplitString(tokens[i].c_str(), '/');
+                    vert_indices.push_back(stoi(indices[0]));
+                    uv_indices.push_back(stoi(indices[1]));
+                    normal_indices.push_back(stoi(indices[2]));
+                }
+            }
+        }
+        
+        const int vert_array_size = vert_indices.size() * 3;
+        const int uv_array_size = uv_indices.size() * 2;
+        const int normal_array_size = normal_indices.size() * 3;
+
+        GLfloat* verts = new GLfloat[vert_array_size];
+        GLfloat* uvs = new GLfloat[uv_array_size];
+        GLfloat* normals = new GLfloat[normal_array_size];
+
+        int iter = 0;
+        for (int i : vert_indices)
+        {
+            verts[iter++] = temp_verts[i-1].x;
+            verts[iter++] = temp_verts[i-1].y;
+            verts[iter++] = temp_verts[i-1].z;
+        }
+        iter = 0;
+        for (int i : uv_indices)
+        {
+            uvs[iter++] = temp_uvs[i-1].x;
+            uvs[iter++] = temp_uvs[i-1].y;
+        }
+        iter = 0;
+        for (int i : normal_indices)
+        {
+            normals[iter++] = temp_normals[i-1].x;
+            normals[iter++] = temp_normals[i-1].y;
+            normals[iter++] = temp_normals[i-1].z;
+        }
+
+        Mesh* mesh = new Mesh(verts, normals, uvs);
+
+        temp_normals.clear();
+        temp_verts.clear();
+        temp_uvs.clear();
+        uv_indices.clear();
+        normal_indices.clear();
+        vert_indices.clear();
+
+        return mesh;
     }
-    return nullptr;
 }
 
-bool AssetManager::UnloadTexture(std::string name)
+bool AssetManager::UnloadTexture(string name)
 {
     if (textures[name] != nullptr)
     {
@@ -95,7 +168,7 @@ bool AssetManager::UnloadTexture(std::string name)
     } else return false;
 }
 
-bool AssetManager::UnloadFont(std::string name)
+bool AssetManager::UnloadFont(string name)
 {
     if (fonts[name] != nullptr)
     {
@@ -107,7 +180,7 @@ bool AssetManager::UnloadFont(std::string name)
     } else return false;
 }
 
-bool AssetManager::UnloadAudio(std::string name)
+bool AssetManager::UnloadAudio(string name)
 {
     if (sounds[name] != nullptr)
     {
@@ -119,7 +192,7 @@ bool AssetManager::UnloadAudio(std::string name)
     } else return false;
 }
 
-bool AssetManager::UnloadModel(std::string name)
+bool AssetManager::UnloadModel(string name)
 {
     if (models[name] != nullptr)
     {
@@ -134,7 +207,7 @@ bool AssetManager::UnloadModel(std::string name)
 void AssetManager::ClearAll()
 {
     int size = textures.size();
-    for (int i = 0; i < size; i++) { delete textures[texture_names[i]]; std::cout << "Deleted " << texture_names[i] << std::endl; }
+    for (int i = 0; i < size; i++) { delete textures[texture_names[i]]; cout << "Deleted " << texture_names[i] << endl; }
     texture_names.clear();
     size = fonts.size();
     for (int i = 0; i < size; i++) delete fonts[font_names[i]];
