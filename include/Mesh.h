@@ -5,7 +5,7 @@
 
 class Mesh {
 public:
-    Mesh(GLfloat*, GLfloat*, GLfloat*);
+    Mesh(GLfloat*, GLfloat*, GLfloat*, int);
     ~Mesh();
 
     void Translate(sf::Vector3f);
@@ -17,12 +17,14 @@ public:
     sf::Vector3f GetPosition();
     sf::Vector3f GetScale();
     sf::Vector3f GetRotation();
+    int GetVertexCount();
 
-private:
+//private:
     sf::Vector3f position;
     sf::Vector3f rotation;
     sf::Vector3f scale;
     GLfloat* verts;
     GLfloat* normals;
     GLfloat* texcoords;
+    int vertexCount;
 };

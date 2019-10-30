@@ -22,11 +22,14 @@ void Scene::Start()
 
 void Scene::Draw(sf::RenderTarget &target, float dt)
 {
+    target.setActive(false);
+    target.pushGLStates();
     for (auto var : drawables)
     {
         target.clear(sf::Color::Blue);
         target.draw(*var);
     }
+    target.popGLStates();
 }
 
 void Scene::Pause()

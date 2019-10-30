@@ -4,5 +4,5 @@
 
 namespace StringUtils
 {
-    static std::vector<std::string> SplitString(const char*, char, int = 0);
+    std::vector<std::string> SplitString(const char*, char, int = 0);
 }

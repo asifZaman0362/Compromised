@@ -3,7 +3,6 @@
 
 using namespace std;
 
-
 map<string, sf::Texture*> AssetManager::textures;
 map<string, sf::Font*> AssetManager::fonts;
 map<string, sf::SoundBuffer*> AssetManager::sounds;
@@ -87,9 +86,12 @@ Mesh* AssetManager::LoadModel(string name)
         vector<int> uv_indices;
         vector<int> normal_indices;
 
-        ifstream objFile(MODEL_PATH+name);
-        if (!objFile) return nullptr;
-
+        ifstream objFile(MODEL_PATH + name + ".obj");
+        if (!objFile)
+        {
+            cerr << "Failed to open file : " << name << ".obj!" << endl;
+            return nullptr;
+        }
         char* line = new char[180];
         while (!objFile.eof())
         {
@@ -107,6 +109,7 @@ Mesh* AssetManager::LoadModel(string name)
                 for (int i = 1; i <= 3; i++)
                 {
                     vector<string> indices = StringUtils::SplitString(tokens[i].c_str(), '/');
+                    cout << indices[0] << ";";
                     vert_indices.push_back(stoi(indices[0]));
                     uv_indices.push_back(stoi(indices[1]));
                     normal_indices.push_back(stoi(indices[2]));
@@ -143,7 +146,7 @@ Mesh* AssetManager::LoadModel(string name)
             normals[iter++] = temp_normals[i-1].z;
         }
 
-        Mesh* mesh = new Mesh(verts, normals, uvs);
+        Mesh* mesh = new Mesh(verts, normals, uvs, vert_array_size);
 
         temp_normals.clear();
         temp_verts.clear();
@@ -152,6 +155,8 @@ Mesh* AssetManager::LoadModel(string name)
         normal_indices.clear();
         vert_indices.clear();
 
+        models[name] = mesh;
+        model_names.push_back(name);
         return mesh;
     }
 }
@@ -207,16 +212,27 @@ bool AssetManager::UnloadModel(string name)
 void AssetManager::ClearAll()
 {
     int size = textures.size();
-    for (int i = 0; i < size; i++) { delete textures[texture_names[i]]; cout << "Deleted " << texture_names[i] << endl; }
+    for (int i = 0; i < size; i++) 
+    { 
+        delete textures[texture_names[i]]; 
+        cout << "Deleted " << texture_names[i] << endl; 
+    }
     texture_names.clear();
+    
     size = fonts.size();
     for (int i = 0; i < size; i++) delete fonts[font_names[i]];
     font_names.clear();
+
     size = sounds.size();
     for (int i = 0; i < size; i++) delete sounds[sound_names[i]];
     sound_names.clear();
+
     size = models.size();
-    for (int i = 0; i < size; i++) delete models[model_names[i]];
+    for (int i = 0; i < size; i++) 
+    { 
+        delete models[model_names[i]]; 
+        cout << "Deleted " << model_names[i] << endl; 
+    }
     model_names.clear();
 
     textures.clear();

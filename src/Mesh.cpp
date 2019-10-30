@@ -1,11 +1,15 @@
 #include "Mesh.h"
+#include <iostream>
 
-Mesh::Mesh(GLfloat* verts, GLfloat* normals, GLfloat* texcoords) : 
-        verts(verts), normals(normals), texcoords(texcoords)
+Mesh::Mesh(GLfloat* verts, GLfloat* normals, GLfloat* texcoords, int vertexCount) : 
+        verts(verts), normals(normals), texcoords(texcoords), vertexCount(vertexCount)
 {
     this->position = sf::Vector3f(0, 0, 0);
     this->scale = sf::Vector3f(0, 0, 0);
     this->rotation = sf::Vector3f(0, 0, 0);
+    glVertexPointer(3, GL_FLOAT, 0, verts);
+    glNormalPointer(GL_FLOAT, 0, normals);
+    glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
 }
 
 Mesh::~Mesh()
@@ -62,4 +66,9 @@ sf::Vector3f Mesh::GetScale()
 sf::Vector3f Mesh::GetRotation()
 {
     return this->rotation;
+}
+
+int Mesh::GetVertexCount()
+{
+    return vertexCount;
 }
