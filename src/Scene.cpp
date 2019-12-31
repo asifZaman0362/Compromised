@@ -1,5 +1,7 @@
-#include "Scene.h"
+#include "Scene.hpp"
 #include <iostream>
+
+using namespace TstBits;
 
 Scene::Scene()
 {
@@ -24,9 +26,9 @@ void Scene::Draw(sf::RenderTarget &target, float dt)
 {
     target.setActive(false);
     target.pushGLStates();
+    target.clear(sf::Color::Blue);
     for (auto var : drawables)
     {
-        target.clear(sf::Color::Blue);
         target.draw(*var);
     }
     target.popGLStates();

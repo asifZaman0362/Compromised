@@ -1,5 +1,7 @@
 #include <iostream>
-#include "SceneManager.h"
+#include "SceneManager.hpp"
+
+using namespace TstBits;
 
 std::stack<ScenePtr> SceneManager::scenes;
 

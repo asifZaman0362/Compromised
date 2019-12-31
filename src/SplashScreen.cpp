@@ -1,5 +1,8 @@
 #include <iostream>
-#include "SplashScreen.h"
+#include "SplashScreen.hpp"
+#include "UiUtils.hpp"
+
+using namespace TstBits;
 
 SplashScreen::SplashScreen() : Scene::Scene() 
 {
@@ -17,6 +20,10 @@ void SplashScreen::Init()
     timer = 0;
     sf::Texture* bgTexture = AssetManager::LoadTexture("background");
     drawables.push_back(new sf::Sprite(*bgTexture));
+    sf::Font* splashFont = AssetManager::LoadFont("ShareTech");
+    splashText = new sf::Text("362Bits", *splashFont, 40);
+    splashText->setFillColor(sf::Color::Red);
+    drawables.push_back(splashText);
 }
 
 void SplashScreen::Start()
@@ -36,11 +43,14 @@ void SplashScreen::Setup(sf::RenderWindow& window)
     Mesh* model = AssetManager::LoadModel("model");
     vertices = model->GetVertexCount();
     glDisableClientState(GL_COLOR_ARRAY);
+    // It works but I don't know how, or why
+    // But I'm not going to mess with it or else it'll break
 }
 
 void SplashScreen::Update(float dt)
 {
     timer += dt;
+    splashText->setPosition(UiUtils::CenterObjectToScreen2D(splashText->getGlobalBounds())+sf::Vector2f(0, 200));
 }
 
 void SplashScreen::Draw(sf::RenderTarget& target, float dt)

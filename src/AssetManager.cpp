@@ -1,7 +1,8 @@
-#include "AssetManager.h"
-#include "StringUtils.h"
+#include "AssetManager.hpp"
+#include "StringUtils.hpp"
 
 using namespace std;
+using namespace TstBits;
 
 map<string, sf::Texture*> AssetManager::textures;
 map<string, sf::Font*> AssetManager::fonts;
@@ -40,7 +41,7 @@ sf::Font* AssetManager::LoadFont(string name)
     else
     {
         sf::Font* temp = new sf::Font();
-        if (temp->loadFromFile(FONT_PATH + name))
+        if (temp->loadFromFile(FONT_PATH + name + ".ttf"))
         {
             fonts[name] = move(temp);
             font_names.push_back(name);
@@ -220,7 +221,11 @@ void AssetManager::ClearAll()
     texture_names.clear();
     
     size = fonts.size();
-    for (int i = 0; i < size; i++) delete fonts[font_names[i]];
+    for (int i = 0; i < size; i++) 
+    {
+        delete fonts[font_names[i]];
+        cout << "Deleted " << font_names[i] << endl;
+    }
     font_names.clear();
 
     size = sounds.size();

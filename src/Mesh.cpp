@@ -1,5 +1,7 @@
-#include "Mesh.h"
+#include "Mesh.hpp"
 #include <iostream>
+
+using namespace TstBits;
 
 Mesh::Mesh(GLfloat* verts, GLfloat* normals, GLfloat* texcoords, int vertexCount) : 
         verts(verts), normals(normals), texcoords(texcoords), vertexCount(vertexCount)

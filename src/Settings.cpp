@@ -1,6 +1,6 @@
-#include "Settings.h"
+#include "Settings.hpp"
 
-Settings::Settings()
+TstBits::Settings::Settings()
 {
     width = 800;
     height = 600;

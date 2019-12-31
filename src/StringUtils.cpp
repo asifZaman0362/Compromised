@@ -1,8 +1,8 @@
-#include "StringUtils.h"
+#include "StringUtils.hpp"
 
 using namespace std;
 
-vector<string> StringUtils::SplitString(const char* line, char delim, int repeat)
+vector<string> TstBits::StringUtils::SplitString(const char* line, char delim, int repeat)
 {
     vector<string> tokens;
     string str = "";
